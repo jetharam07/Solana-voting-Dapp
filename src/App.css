@@ -1,6 +1,7 @@
 /* ========== Global ========== */
 body {
   font-family: "Inter", sans-serif;
+  background: linear-gradient(to right, #8eb2e1,#c4e3f1, #c4edc2);
   background: #9cc4ed;
   margin: 0;
   padding: 0;
@@ -16,7 +17,8 @@ body {
 /* Heading */
 h2 {
   text-align: center;
-  color: #1e3a8a;
+  color: #09c90f; 
+  text-shadow: 0 0.9px 0.9px rgb(10, 9, 9); 
   margin-bottom: 30px;
   font-size: 28px;
   font-weight: 700;
@@ -34,7 +36,8 @@ button {
   background: #2563eb;
   color: white;
   padding: 10px 16px;
-  margin-top: 8px;
+  margin-top: 20px;
+  margin-bottom: 20px;  
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -66,7 +69,7 @@ input {
 
 input:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 5px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 1px 1px rgba(77, 61, 244, 0.4);
 }
 
 /* ========== Card Layout ========== */
@@ -79,9 +82,9 @@ input:focus {
 
 .card {
   background: white;
-  padding: 20px;
+  padding: 35px;
   border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 5px 8px rgb(74, 73, 73);
   transition: transform 0.2s;
 }
 
@@ -95,7 +98,7 @@ input:focus {
   background: white;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 5px 8px rgb(93, 93, 93)!important;
   overflow-x: auto;
 }
 
@@ -158,7 +161,7 @@ td button:hover {
 
   /* Cards full width */
   .card {
-    padding: 16px;
+    padding: 35px;
   }
 
   /* Buttons full width */
