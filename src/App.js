@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import * as anchor from "@project-serum/anchor";
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -42,6 +43,10 @@ function App() {
 
   //  Register Candidate
   const registerCandidate = async () => {
+    if (!walletConnected) {
+      alert("❌ Connect your wallet first!");
+      return;
+    }
     const provider = getProvider();
     const program = new anchor.Program(idl, programID, provider);
 
@@ -64,6 +69,10 @@ function App() {
 
   //  Register Voter
   const registerVoter = async () => {
+    if (!walletConnected) {
+      alert("❌ Connect your wallet first!");
+      return;
+    }
     const provider = getProvider();
     const program = new anchor.Program(idl, programID, provider);
 
@@ -86,6 +95,10 @@ function App() {
 
   //  Cast Vote
   const castVote = async (candidatePubkey) => {
+    if (!walletConnected) {
+      alert("❌ Connect your wallet first!");
+      return;
+    }
     const provider = getProvider();
     const program = new anchor.Program(idl, programID, provider);
 
@@ -158,7 +171,9 @@ function App() {
             value={partyName}
             onChange={(e) => setPartyName(e.target.value)}
           />
-          <button onClick={registerCandidate}>Register Candidate</button>
+          <button onClick={registerCandidate} disabled={!walletConnected}>
+            Register Candidate
+          </button>
         </div>
 
         <div className="card">
@@ -169,7 +184,9 @@ function App() {
             value={vName}
             onChange={(e) => setVName(e.target.value)}
           />
-          <button onClick={registerVoter}>Register Voter</button>
+          <button onClick={registerVoter} disabled={!walletConnected}>
+            Register Voter
+          </button>
         </div>
       </div>
 
@@ -196,7 +213,10 @@ function App() {
                   <td data-label="Party">{c.account.partyName}</td>
                   <td data-label="Votes">{c.account.votes.toString()}</td>
                   <td data-label="Action">
-                    <button onClick={() => castVote(c.publicKey.toBase58())}>
+                    <button
+                      onClick={() => castVote(c.publicKey.toBase58())}
+                      disabled={!walletConnected}
+                    >
                       Vote
                     </button>
                   </td>
