@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import * as anchor from "@project-serum/anchor";
 import { Connection, PublicKey } from "@solana/web3.js";
@@ -26,6 +25,15 @@ function App() {
   const [voters, setVoters] = useState([]);
   const [walletConnected, setWalletConnected] = useState(false);
 
+  // Spinner States
+  const [loadingCandidate, setLoadingCandidate] = useState(false);
+  const [loadingVoter, setLoadingVoter] = useState(false);
+  const [loadingFetchCandidates, setLoadingFetchCandidates] = useState(false);
+  const [loadingFetchUsers, setLoadingFetchUsers] = useState(false);
+
+  // Updated vote spinner per candidate
+  const [loadingVote, setLoadingVote] = useState({}); // object keyed by candidatePubkey
+
   //  Wallet Connect
   const connectWallet = async () => {
     if (window.solana) {
@@ -47,24 +55,32 @@ function App() {
       alert("❌ Connect your wallet first!");
       return;
     }
-    const provider = getProvider();
-    const program = new anchor.Program(idl, programID, provider);
+    setLoadingCandidate(true);
+    try {
+      const provider = getProvider();
+      const program = new anchor.Program(idl, programID, provider);
 
-    const [candidatePda] = await PublicKey.findProgramAddress(
-      [Buffer.from(cName), provider.wallet.publicKey.toBuffer()],
-      program.programId
-    );
+      const [candidatePda] = await PublicKey.findProgramAddress(
+        [Buffer.from(cName), provider.wallet.publicKey.toBuffer()],
+        program.programId
+      );
 
-    await program.methods
-      .registerCandidate(cName, partyName)
-      .accounts({
-        payer: provider.wallet.publicKey,
-        candidate: candidatePda,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .rpc();
+      await program.methods
+        .registerCandidate(cName, partyName)
+        .accounts({
+          payer: provider.wallet.publicKey,
+          candidate: candidatePda,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .rpc();
 
-    alert("✅ Candidate registered: " + candidatePda.toBase58());
+      alert("✅ Candidate registered: " + candidatePda.toBase58());
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error: " + err.message);
+    } finally {
+      setLoadingCandidate(false);
+    }
   };
 
   //  Register Voter
@@ -73,24 +89,32 @@ function App() {
       alert("❌ Connect your wallet first!");
       return;
     }
-    const provider = getProvider();
-    const program = new anchor.Program(idl, programID, provider);
+    setLoadingVoter(true);
+    try {
+      const provider = getProvider();
+      const program = new anchor.Program(idl, programID, provider);
 
-    const [voterPda] = await PublicKey.findProgramAddress(
-      [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
-      program.programId
-    );
+      const [voterPda] = await PublicKey.findProgramAddress(
+        [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
+        program.programId
+      );
 
-    await program.methods
-      .registerVoter(vName)
-      .accounts({
-        payer: provider.wallet.publicKey,
-        voter: voterPda,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      })
-      .rpc();
+      await program.methods
+        .registerVoter(vName)
+        .accounts({
+          payer: provider.wallet.publicKey,
+          voter: voterPda,
+          systemProgram: anchor.web3.SystemProgram.programId,
+        })
+        .rpc();
 
-    alert("✅ Voter registered: " + voterPda.toBase58());
+      alert("✅ Voter registered: " + voterPda.toBase58());
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error: " + err.message);
+    } finally {
+      setLoadingVoter(false);
+    }
   };
 
   //  Cast Vote
@@ -99,29 +123,42 @@ function App() {
       alert("❌ Connect your wallet first!");
       return;
     }
-    const provider = getProvider();
-    const program = new anchor.Program(idl, programID, provider);
 
-    const [voterPda] = await PublicKey.findProgramAddress(
-      [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
-      program.programId
-    );
+    // Set only this candidate's button loading
+    setLoadingVote(prev => ({ ...prev, [candidatePubkey]: true }));
 
-    await program.methods
-      .castVote()
-      .accounts({
-        payer: provider.wallet.publicKey,
-        voter: voterPda,
-        candidate: new PublicKey(candidatePubkey),
-      })
-      .rpc();
+    try {
+      const provider = getProvider();
+      const program = new anchor.Program(idl, programID, provider);
 
-    alert("✅ Vote casted for candidate: " + candidatePubkey);
-    fetchCandidates();
+      const [voterPda] = await PublicKey.findProgramAddress(
+        [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
+        program.programId
+      );
+
+      await program.methods
+        .castVote()
+        .accounts({
+          payer: provider.wallet.publicKey,
+          voter: voterPda,
+          candidate: new PublicKey(candidatePubkey),
+        })
+        .rpc();
+
+      alert("✅ Vote casted for candidate: " + candidatePubkey);
+      fetchCandidates();
+    } catch (err) {
+      console.error(err);
+      alert("❌ Error: " + err.message);
+    } finally {
+      // Reset loading for this candidate
+      setLoadingVote(prev => ({ ...prev, [candidatePubkey]: false }));
+    }
   };
 
   //  Fetch Candidates
   const fetchCandidates = async () => {
+    setLoadingFetchCandidates(true);
     try {
       const provider = getProvider();
       const program = new anchor.Program(idl, programID, provider);
@@ -131,11 +168,14 @@ function App() {
     } catch (err) {
       console.error("Error fetching candidates:", err);
       alert("❌ Error fetching candidates: " + err.message);
+    } finally {
+      setLoadingFetchCandidates(false);
     }
   };
 
   //  Fetch Voters
   const fetchUsers = async () => {
+    setLoadingFetchUsers(true);
     try {
       const provider = getProvider();
       const program = new anchor.Program(idl, programID, provider);
@@ -145,6 +185,8 @@ function App() {
     } catch (err) {
       console.error("Error fetching voters:", err);
       alert("❌ Error fetching voters: " + err.message);
+    } finally {
+      setLoadingFetchUsers(false);
     }
   };
 
@@ -171,8 +213,8 @@ function App() {
             value={partyName}
             onChange={(e) => setPartyName(e.target.value)}
           />
-          <button onClick={registerCandidate} disabled={!walletConnected}>
-            Register Candidate
+          <button onClick={registerCandidate} disabled={!walletConnected || loadingCandidate}>
+            {loadingCandidate ? "⏳ Registering..." : "Register Candidate"}
           </button>
         </div>
 
@@ -184,8 +226,8 @@ function App() {
             value={vName}
             onChange={(e) => setVName(e.target.value)}
           />
-          <button onClick={registerVoter} disabled={!walletConnected}>
-            Register Voter
+          <button onClick={registerVoter} disabled={!walletConnected || loadingVoter}>
+            {loadingVoter ? "⏳ Registering..." : "Register Voter"}
           </button>
         </div>
       </div>
@@ -193,7 +235,9 @@ function App() {
       {/* BOTTOM SECTION - Candidates */}
       <div className="table-container">
         <h3>Candidate List</h3>
-        <button onClick={fetchCandidates}>Fetch Candidates</button>
+        <button onClick={fetchCandidates} disabled={loadingFetchCandidates}>
+          {loadingFetchCandidates ? "⏳ Fetching..." : "Fetch Candidates"}
+        </button>
         {candidates.length > 0 && (
           <table>
             <thead>
@@ -206,22 +250,25 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {candidates.map((c, i) => (
-                <tr key={i}>
-                  <td data-label="PubKey">{c.publicKey.toBase58()}</td>
-                  <td data-label="Name">{c.account.cName}</td>
-                  <td data-label="Party">{c.account.partyName}</td>
-                  <td data-label="Votes">{c.account.votes.toString()}</td>
-                  <td data-label="Action">
-                    <button
-                      onClick={() => castVote(c.publicKey.toBase58())}
-                      disabled={!walletConnected}
-                    >
-                      Vote
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {candidates.map((c, i) => {
+                const candidateKey = c.publicKey.toBase58();
+                return (
+                  <tr key={i}>
+                    <td data-label="PubKey">{candidateKey}</td>
+                    <td data-label="Name">{c.account.cName}</td>
+                    <td data-label="Party">{c.account.partyName}</td>
+                    <td data-label="Votes">{c.account.votes.toString()}</td>
+                    <td data-label="Action">
+                      <button
+                        onClick={() => castVote(candidateKey)}
+                        disabled={!walletConnected || loadingVote[candidateKey]}
+                      >
+                        {loadingVote[candidateKey] ? "⏳ Voting..." : "Vote"}
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
@@ -230,7 +277,9 @@ function App() {
       {/* BOTTOM SECTION - Voters */}
       <div className="table-container">
         <h3>Voter List</h3>
-        <button onClick={fetchUsers}>Fetch Users</button>
+        <button onClick={fetchUsers} disabled={loadingFetchUsers}>
+          {loadingFetchUsers ? "⏳ Fetching..." : "Fetch Users"}
+        </button>
         {voters.length > 0 && (
           <table>
             <thead>
