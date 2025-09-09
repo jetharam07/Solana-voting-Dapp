@@ -138,7 +138,7 @@ function App() {
   return (
     <div className="container">
       <h2>🗳️ Solana Voting DApp</h2>
-      <button onClick={connectWallet}>
+      <button onClick={connectWallet} disabled={walletConnected}>
         {walletConnected ? "Wallet Connected ✅" : "Connect Wallet"}
       </button>
 
