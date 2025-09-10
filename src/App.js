@@ -45,7 +45,7 @@ function App() {
         console.error(err);
       }
     } else {
-      alert("Phantom Wallet install karo!");
+      alert("Please install Phantom Wallet!");
     }
   };
 
