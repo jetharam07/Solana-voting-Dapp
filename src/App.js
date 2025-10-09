@@ -160,7 +160,150 @@ function App() {
 
 
 
-// 🟢 Register Candidate
+// // 🟢 Register Candidate
+// const registerCandidate = async () => {
+//   if (!walletConnected) {
+//     alert("❌ Connect your wallet first!");
+//     return;
+//   }
+
+//   setLoadingCandidate(true);
+//   let candidatePda;
+
+//   try {
+//     const provider = getProvider();
+//     const program = new anchor.Program(idl, programID, provider);
+
+//     [candidatePda] = await PublicKey.findProgramAddress(
+//       [Buffer.from(cName), provider.wallet.publicKey.toBuffer()],
+//       program.programId
+//     );
+
+//     await program.methods
+//       .registerCandidate(cName, partyName)
+//       .accounts({
+//         payer: provider.wallet.publicKey,
+//         candidate: candidatePda,
+//         systemProgram: anchor.web3.SystemProgram.programId,
+//       })
+//       .rpc();
+
+//     alert("✅ Candidate registered: " + candidatePda.toBase58());
+//   } catch (err) {
+//     if (candidatePda) {
+//       alert("✅ Candidate registered: " + candidatePda.toBase58());
+//     } else {
+//       alert("❌ Failed to register candidate! PDA not generated.");
+//     }
+//     console.error("Candidate registration error:", err);
+//   } finally {
+//     setLoadingCandidate(false);
+//   }
+// };
+
+
+
+// // 🟢 Register Voter
+// const registerVoter = async () => {
+//   if (!walletConnected) {
+//     alert("❌ Connect your wallet first!");
+//     return;
+//   }
+
+//   setLoadingVoter(true);
+//   let voterPda;
+
+//   try {
+//     const provider = getProvider();
+//     const program = new anchor.Program(idl, programID, provider);
+
+//     [voterPda] = await PublicKey.findProgramAddress(
+//       [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
+//       program.programId
+//     );
+
+//     await program.methods
+//       .registerVoter(vName)
+//       .accounts({
+//         payer: provider.wallet.publicKey,
+//         voter: voterPda,
+//         systemProgram: anchor.web3.SystemProgram.programId,
+//       })
+//       .rpc();
+
+//     alert("✅ Voter registered: " + voterPda.toBase58());
+//   } catch (err) {
+//     if (voterPda) {
+//       alert("✅ Voter registered: " + voterPda.toBase58());
+//     } else {
+//       alert("❌ Failed to register voter! PDA not generated.");
+//     }
+//     console.error("Voter registration error:", err);
+//   } finally {
+//     setLoadingVoter(false);
+//   }
+// };
+
+
+
+// // 🟢 Cast Vote
+// const castVote = async (candidatePubkey) => {
+//   if (!walletConnected) {
+//     alert("❌ Connect your wallet first!");
+//     return;
+//   }
+
+//   setLoadingVote(prev => ({ ...prev, [candidatePubkey]: true }));
+//   let voterPda;
+
+//   try {
+//     const provider = getProvider();
+//     const program = new anchor.Program(idl, programID, provider);
+
+//     [voterPda] = await PublicKey.findProgramAddress(
+//       [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
+//       program.programId
+//     );
+// await program.methods
+//   .castVote()
+//   .accounts({
+//     payer: provider.wallet.publicKey,
+//     voter: voterPda,
+//     candidate: new PublicKey(candidatePubkey),
+//   })
+//   .rpc();
+
+// // Transaction confirm ho gaya, ab fetch candidates
+// await fetchCandidates();  // ✅ ensure latest vote count
+
+// alert("✅ Vote casted for candidate: " + candidatePubkey);
+
+//   } catch (err) {
+//     if (voterPda) {
+//       alert("✅ Vote casted for candidate: " + candidatePubkey);
+//     } else {
+//       alert("❌ Failed to cast vote! PDA not generated.");
+//     }
+//     console.error("Vote error:", err);
+//   } finally {
+//     setLoadingVote(prev => ({ ...prev, [candidatePubkey]: false }));
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+//  Register Candidate
 const registerCandidate = async () => {
   if (!walletConnected) {
     alert("❌ Connect your wallet first!");
@@ -203,7 +346,7 @@ const registerCandidate = async () => {
 
 
 
-// 🟢 Register Voter
+//  Register Voter
 const registerVoter = async () => {
   if (!walletConnected) {
     alert("❌ Connect your wallet first!");
@@ -246,7 +389,7 @@ const registerVoter = async () => {
 
 
 
-// 🟢 Cast Vote
+//  Cast Vote
 const castVote = async (candidatePubkey) => {
   if (!walletConnected) {
     alert("❌ Connect your wallet first!");
@@ -289,8 +432,6 @@ alert("✅ Vote casted for candidate: " + candidatePubkey);
     setLoadingVote(prev => ({ ...prev, [candidatePubkey]: false }));
   }
 };
-
-
 
 
 
