@@ -49,112 +49,270 @@ function App() {
     }
   };
 
-  //  Register Candidate
-  const registerCandidate = async () => {
-    if (!walletConnected) {
-      alert("❌ Connect your wallet first!");
-      return;
-    }
-    setLoadingCandidate(true);
-    try {
-      const provider = getProvider();
-      const program = new anchor.Program(idl, programID, provider);
+  // //  Register Candidate
+  // const registerCandidate = async () => {
+  //   if (!walletConnected) {
+  //     alert("❌ Connect your wallet first!");
+  //     return;
+  //   }
+  //   setLoadingCandidate(true);
+  //   try {
+  //     const provider = getProvider();
+  //     const program = new anchor.Program(idl, programID, provider);
 
-      const [candidatePda] = await PublicKey.findProgramAddress(
-        [Buffer.from(cName), provider.wallet.publicKey.toBuffer()],
-        program.programId
-      );
+  //     const [candidatePda] = await PublicKey.findProgramAddress(
+  //       [Buffer.from(cName), provider.wallet.publicKey.toBuffer()],
+  //       program.programId
+  //     );
 
-      await program.methods
-        .registerCandidate(cName, partyName)
-        .accounts({
-          payer: provider.wallet.publicKey,
-          candidate: candidatePda,
-          systemProgram: anchor.web3.SystemProgram.programId,
-        })
-        .rpc();
+  //     await program.methods
+  //       .registerCandidate(cName, partyName)
+  //       .accounts({
+  //         payer: provider.wallet.publicKey,
+  //         candidate: candidatePda,
+  //         systemProgram: anchor.web3.SystemProgram.programId,
+  //       })
+  //       .rpc();
 
+  //     alert("✅ Candidate registered: " + candidatePda.toBase58());
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("❌ Error: " + err.message);
+  //   } finally {
+  //     setLoadingCandidate(false);
+  //   }
+  // };
+
+
+  // //  Register Voter
+  // const registerVoter = async () => {
+  //   if (!walletConnected) {
+  //     alert("❌ Connect your wallet first!");
+  //     return;
+  //   }
+  //   setLoadingVoter(true);
+  //   try {
+  //     const provider = getProvider();
+  //     const program = new anchor.Program(idl, programID, provider);
+
+  //     const [voterPda] = await PublicKey.findProgramAddress(
+  //       [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
+  //       program.programId
+  //     );
+
+  //     await program.methods
+  //       .registerVoter(vName)
+  //       .accounts({
+  //         payer: provider.wallet.publicKey,
+  //         voter: voterPda,
+  //         systemProgram: anchor.web3.SystemProgram.programId,
+  //       })
+  //       .rpc();
+
+  //     alert("✅ Voter registered: " + voterPda.toBase58());
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("❌ Error: " + err.message);
+  //   } finally {
+  //     setLoadingVoter(false);
+  //   }
+  // };
+
+  // //  Cast Vote
+  // const castVote = async (candidatePubkey) => {
+  //   if (!walletConnected) {
+  //     alert("❌ Connect your wallet first!");
+  //     return;
+  //   }
+
+  //   // Set only this candidate's button loading
+  //   setLoadingVote(prev => ({ ...prev, [candidatePubkey]: true }));
+
+  //   try {
+  //     const provider = getProvider();
+  //     const program = new anchor.Program(idl, programID, provider);
+
+  //     const [voterPda] = await PublicKey.findProgramAddress(
+  //       [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
+  //       program.programId
+  //     );
+
+  //     await program.methods
+  //       .castVote()
+  //       .accounts({
+  //         payer: provider.wallet.publicKey,
+  //         voter: voterPda,
+  //         candidate: new PublicKey(candidatePubkey),
+  //       })
+  //       .rpc();
+
+  //     alert("✅ Vote casted for candidate: " + candidatePubkey);
+  //     fetchCandidates();
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("❌ Error: " + err.message);
+  //   } finally {
+  //     // Reset loading for this candidate
+  //     setLoadingVote(prev => ({ ...prev, [candidatePubkey]: false }));
+  //   }
+  // };
+
+
+
+
+// 🟢 Register Candidate
+const registerCandidate = async () => {
+  if (!walletConnected) {
+    alert("❌ Connect your wallet first!");
+    return;
+  }
+
+  setLoadingCandidate(true);
+  let candidatePda;
+
+  try {
+    const provider = getProvider();
+    const program = new anchor.Program(idl, programID, provider);
+
+    [candidatePda] = await PublicKey.findProgramAddress(
+      [Buffer.from(cName), provider.wallet.publicKey.toBuffer()],
+      program.programId
+    );
+
+    await program.methods
+      .registerCandidate(cName, partyName)
+      .accounts({
+        payer: provider.wallet.publicKey,
+        candidate: candidatePda,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .rpc();
+
+    alert("✅ Candidate registered: " + candidatePda.toBase58());
+  } catch (err) {
+    if (candidatePda) {
       alert("✅ Candidate registered: " + candidatePda.toBase58());
-    } catch (err) {
-      console.error(err);
-      alert("❌ Error: " + err.message);
-    } finally {
-      setLoadingCandidate(false);
+    } else {
+      alert("❌ Failed to register candidate! PDA not generated.");
     }
-  };
+    console.error("Candidate registration error:", err);
+  } finally {
+    setLoadingCandidate(false);
+  }
+};
 
-  //  Register Voter
-  const registerVoter = async () => {
-    if (!walletConnected) {
-      alert("❌ Connect your wallet first!");
-      return;
-    }
-    setLoadingVoter(true);
-    try {
-      const provider = getProvider();
-      const program = new anchor.Program(idl, programID, provider);
 
-      const [voterPda] = await PublicKey.findProgramAddress(
-        [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
-        program.programId
-      );
 
-      await program.methods
-        .registerVoter(vName)
-        .accounts({
-          payer: provider.wallet.publicKey,
-          voter: voterPda,
-          systemProgram: anchor.web3.SystemProgram.programId,
-        })
-        .rpc();
+// 🟢 Register Voter
+const registerVoter = async () => {
+  if (!walletConnected) {
+    alert("❌ Connect your wallet first!");
+    return;
+  }
 
+  setLoadingVoter(true);
+  let voterPda;
+
+  try {
+    const provider = getProvider();
+    const program = new anchor.Program(idl, programID, provider);
+
+    [voterPda] = await PublicKey.findProgramAddress(
+      [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
+      program.programId
+    );
+
+    await program.methods
+      .registerVoter(vName)
+      .accounts({
+        payer: provider.wallet.publicKey,
+        voter: voterPda,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      })
+      .rpc();
+
+    alert("✅ Voter registered: " + voterPda.toBase58());
+  } catch (err) {
+    if (voterPda) {
       alert("✅ Voter registered: " + voterPda.toBase58());
-    } catch (err) {
-      console.error(err);
-      alert("❌ Error: " + err.message);
-    } finally {
-      setLoadingVoter(false);
+    } else {
+      alert("❌ Failed to register voter! PDA not generated.");
     }
-  };
+    console.error("Voter registration error:", err);
+  } finally {
+    setLoadingVoter(false);
+  }
+};
 
-  //  Cast Vote
-  const castVote = async (candidatePubkey) => {
-    if (!walletConnected) {
-      alert("❌ Connect your wallet first!");
-      return;
-    }
 
-    // Set only this candidate's button loading
-    setLoadingVote(prev => ({ ...prev, [candidatePubkey]: true }));
 
-    try {
-      const provider = getProvider();
-      const program = new anchor.Program(idl, programID, provider);
+// 🟢 Cast Vote
+const castVote = async (candidatePubkey) => {
+  if (!walletConnected) {
+    alert("❌ Connect your wallet first!");
+    return;
+  }
 
-      const [voterPda] = await PublicKey.findProgramAddress(
-        [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
-        program.programId
-      );
+  setLoadingVote(prev => ({ ...prev, [candidatePubkey]: true }));
+  let voterPda;
 
-      await program.methods
-        .castVote()
-        .accounts({
-          payer: provider.wallet.publicKey,
-          voter: voterPda,
-          candidate: new PublicKey(candidatePubkey),
-        })
-        .rpc();
+  try {
+    const provider = getProvider();
+    const program = new anchor.Program(idl, programID, provider);
 
+    [voterPda] = await PublicKey.findProgramAddress(
+      [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
+      program.programId
+    );
+await program.methods
+  .castVote()
+  .accounts({
+    payer: provider.wallet.publicKey,
+    voter: voterPda,
+    candidate: new PublicKey(candidatePubkey),
+  })
+  .rpc();
+
+// Transaction confirm ho gaya, ab fetch candidates
+await fetchCandidates();  // ✅ ensure latest vote count
+
+alert("✅ Vote casted for candidate: " + candidatePubkey);
+
+  } catch (err) {
+    if (voterPda) {
       alert("✅ Vote casted for candidate: " + candidatePubkey);
-      fetchCandidates();
-    } catch (err) {
-      console.error(err);
-      alert("❌ Error: " + err.message);
-    } finally {
-      // Reset loading for this candidate
-      setLoadingVote(prev => ({ ...prev, [candidatePubkey]: false }));
+    } else {
+      alert("❌ Failed to cast vote! PDA not generated.");
     }
-  };
+    console.error("Vote error:", err);
+  } finally {
+    setLoadingVote(prev => ({ ...prev, [candidatePubkey]: false }));
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   //  Fetch Candidates
   const fetchCandidates = async () => {
