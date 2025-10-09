@@ -136,9 +136,8 @@ const registerVoter = async () => {
   }
 };
 
+//cast vote
 
-
-//  Cast Vote
 const castVote = async (candidatePubkey) => {
   if (!walletConnected) {
     alert("❌ Connect your wallet first!");
@@ -156,19 +155,21 @@ const castVote = async (candidatePubkey) => {
       [Buffer.from(vName), provider.wallet.publicKey.toBuffer()],
       program.programId
     );
-await program.methods
-  .castVote()
-  .accounts({
-    payer: provider.wallet.publicKey,
-    voter: voterPda,
-    candidate: new PublicKey(candidatePubkey),
-  })
-  .rpc();
 
-// Transaction confirm ho gaya, ab fetch candidates
-await fetchCandidates();  // ✅ ensure latest vote count
+    await program.methods
+      .castVote()
+      .accounts({
+        payer: provider.wallet.publicKey,
+        voter: voterPda,
+        candidate: new PublicKey(candidatePubkey),
+      })
+      .rpc({ commitment: "confirmed" });
 
-alert("✅ Vote casted for candidate: " + candidatePubkey);
+  
+    await fetchCandidates();
+
+    // Alert show 
+    alert("✅ Vote casted for candidate: " + candidatePubkey);
 
   } catch (err) {
     if (voterPda) {
@@ -181,9 +182,6 @@ alert("✅ Vote casted for candidate: " + candidatePubkey);
     setLoadingVote(prev => ({ ...prev, [candidatePubkey]: false }));
   }
 };
-
-
-
 
   //  Fetch Candidates
   const fetchCandidates = async () => {
