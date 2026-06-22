@@ -7,6 +7,7 @@ Solana Voting DApp is a decentralized voting application built on the Solana blo
 Candidate information, voter records, and vote counts are stored directly on-chain, providing a transparent and verifiable voting system. The application was developed to explore Solana smart contract development, Program Derived Addresses (PDAs), account management, and frontend integration with blockchain programs.
 
 Site Link: https://solana-voting-dapp-tau.vercel.app/
+
 Demo YT Video: https://youtu.be/FWyjmP4SbJA?si=hIMGyCjnyZ9xRjHc
 
 ## Features
